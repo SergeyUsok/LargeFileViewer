@@ -1,0 +1,40 @@
+﻿<Window x:Class="LargeFileViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:LargeFileViewer.ViewModel"
+        Title="{Binding FileName, StringFormat={}Large File Viewer {0}}" Height="350" Width="525"
+        Drop="OnFileDrop" AllowDrop="True">
+
+    <Window.Resources>
+        <ResourceDictionary Source="View\Resources\MainWindowResources.xaml" />
+    </Window.Resources>
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="19*"/>
+            <RowDefinition Height="301*"/>
+        </Grid.RowDefinitions>
+
+
+
+        <DockPanel Grid.Row="0">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Open" Command="{Binding OpenFileCommand}"/>
+                    <MenuItem Header="_Close" Command="{Binding CloseFileCommand}"/>
+                    <MenuItem Header="_Save" Command="{Binding SaveFileCommand}"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <StackPanel Grid.Row="1"  Margin="10,10,10,0" >
+            <TextBlock Text="{Binding MemoryUsage}" />
+            <ContentControl Content="{Binding CurrentViewState}"/>
+        </StackPanel>
+        
+
+    </Grid>
+</Window>
