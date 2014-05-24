@@ -14,9 +14,6 @@ namespace LargeFileViewer.Models.Sorting
     class Sorter
     {
         private readonly Dictionary<string, SortedRowsProvider> _providersCache = new Dictionary<string, SortedRowsProvider>();
-        private readonly MergingSorter _mergingSorter = new MergingSorter();
-        private readonly ChunkCreator _chunkCreator;
-        private readonly SortInfoSerializer _serializer = new SortInfoSerializer();
 
         private const int ChunkSize = 500000;
 
@@ -28,7 +25,7 @@ namespace LargeFileViewer.Models.Sorting
                 throw new ArgumentNullException("originalProvider");
 
             OriginalProvider = originalProvider;
-            _chunkCreator = new ChunkCreator(ChunkSize, originalProvider);
+            //_chunkCreator = new ChunkCreator(ChunkSize, originalProvider);
         }
 
         public Task<SortedRowsProvider> Sort(string column, ListSortDirection direction)
@@ -58,66 +55,12 @@ namespace LargeFileViewer.Models.Sorting
 
         private List<int> ApplyExternalSort(string column)
         {
-            var chunks = ConsumeChunks(column);
-
-            var partialResults = SortChunks(chunks);
-
-            return _mergingSorter.MergeAscendingSort(partialResults).ToList();
+            throw new NotImplementedException();
         }
 
         private List<int> ApplyInMemorySort(string column)
         {
-            return _chunkCreator.Chunkify(column)
-                                .SelectMany(c => c)
-                                .OrderBy(si => si.ColumnValue)
-                                .Select(si => si.RowIndex)
-                                .ToList();
-        }
-
-        private List<Task<string>> SortChunks(IEnumerable<IEnumerable<SortInfo>> chunks)
-        {
-            var results = new List<Task<string>>();
-
-            Task.Run(() =>
-                {
-                    foreach (var chunk in chunks)
-                    {
-                        var currentChunk = chunk; // avoid access to modified closure
-
-                        var res = Task.Run(() => currentChunk.OrderBy(si => si.ColumnValue))
-                                      .ContinueWith(t => SavePartialResult(t.Result));
-
-                        results.Add(res);
-                    }
-                });
-
-            return results;
-        }
-
-        private IEnumerable<IEnumerable<SortInfo>> ConsumeChunks(string column)
-        {
-            var blockingQueue = new BlockingCollection<IEnumerable<SortInfo>>();
-
-            Task.Run(() =>
-                {
-                    foreach (var chunk in _chunkCreator.Chunkify(column))
-                    {
-                        blockingQueue.Add(chunk);
-                    }
-
-                    blockingQueue.CompleteAdding();
-                });
-
-            return blockingQueue.GetConsumingEnumerable();
-        }
-
-        private string SavePartialResult(IEnumerable<SortInfo> sortInfos)
-        {
-            var tempFile = Path.GetTempFileName();
-
-            File.WriteAllLines(tempFile, sortInfos.Select(si => _serializer.Serialize(si)));
-
-            return tempFile;
+            throw new NotImplementedException();
         }
 
         private bool IsChunkingReqiured()

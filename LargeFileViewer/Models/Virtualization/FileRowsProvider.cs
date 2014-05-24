@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LargeFileViewer.Annotations;
 using LargeFileViewer.ViewModel.CollectionBinding;
 
@@ -26,7 +27,8 @@ namespace LargeFileViewer.Models.Virtualization
 
         public IEnumerable<FileRow> FetchRange(int start, int count)
         {
-            throw new NotImplementedException();
+            return _columnsProvider.GetColumnsForRange(start, count)
+                                   .Select(col => new FileRow(col));
         }
 
         public FileRow FetchSingle(int itemNumber)

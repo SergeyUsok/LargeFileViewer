@@ -36,11 +36,23 @@ namespace LargeFileViewer.Models.Virtualization
 
         public IEnumerable<FileColumn> GetColumns(int rowNumber)
         {
-            var columns = _indexedStream.GetLine(rowNumber)
-                                        .Split(_columnsSeparator, StringSplitOptions.None)
-                                        .Zip(Header, (value, name) => FileColumn.Create(name, value, typeof (string)));
+            var row = _indexedStream.GetLine(rowNumber);
 
-            yield return FileColumn.Create("Row #", ++rowNumber, typeof(int)); // in order to show row number
+            return CreateColumns(row, rowNumber);
+        }
+
+        public IEnumerable<IEnumerable<FileColumn>> GetColumnsForRange(int rowNumber, int count)
+        {
+            return _indexedStream.GetLines(rowNumber, count)
+                                 .Zip(Enumerable.Range(rowNumber, count), (row, number) => CreateColumns(row, number));
+        }
+
+        private IEnumerable<FileColumn> CreateColumns(string row, int rowNumber)
+        {
+            var columns = row.Split(_columnsSeparator, StringSplitOptions.None)
+                            .Zip(Header, (value, header) => FileColumn.Create(header, value, typeof (string)));
+
+            yield return FileColumn.Create("Row #", rowNumber, typeof(int)); // in order to show row number
 
             foreach (var fileColumn in columns)
             {

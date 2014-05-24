@@ -59,9 +59,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\FileLoader.cs" />
-    <Compile Include="Models\Sorting\ChunkCreator.cs" />
-    <Compile Include="Models\Sorting\Class1.cs" />
-    <Compile Include="Models\Sorting\MergingSorter.cs" />
+    <Compile Include="Models\Sorting\ExternalSort\AsyncEnumerator.cs" />
+    <Compile Include="Models\Sorting\ExternalSort\ExternalSortPipeline.cs" />
+    <Compile Include="Models\Sorting\ExternalSort\PartialResult.cs" />
+    <Compile Include="Models\Sorting\Range.cs" />
     <Compile Include="Models\Sorting\SortedRowsProvider.cs" />
     <Compile Include="Models\Sorting\Sorter.cs" />
     <Compile Include="Models\Sorting\SortInfo.cs" />

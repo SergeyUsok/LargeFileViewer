@@ -27,8 +27,7 @@ namespace LargeFileViewer.Models.Sorting
 
         public IEnumerable<FileRow> FetchRange(int start, int count)
         {
-            return Enumerable.Range(start, count)
-                             .Select(i => FetchSingle(i));
+            return _itemsProvider.FetchRange(start, count);
         }
 
         public FileRow FetchSingle(int itemNumber)

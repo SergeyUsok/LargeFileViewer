@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace LargeFileViewer.Models.StreamReading
@@ -28,11 +29,23 @@ namespace LargeFileViewer.Models.StreamReading
         {
             _stream.Position = _lineIndexes[lineNumber];
 
-            var buffer = CalculateBuffer(lineNumber);
+            var buffer = CalculateBuffer(lineNumber, 1);
 
             _stream.Read(buffer, 0, buffer.Length);
 
             return Encoding.UTF8.GetString(buffer).TrimEnd('\r', '\n');
+        }
+
+        public IEnumerable<string> GetLines(int startLineNumber, int count)
+        {
+            _stream.Position = _lineIndexes[startLineNumber];
+
+            var buffer = CalculateBuffer(startLineNumber, count);
+
+            _stream.Read(buffer, 0, buffer.Length);
+
+            return Encoding.UTF8.GetString(buffer)
+                           .Split('\n').Select(line => line.TrimEnd('\r'));
         }
 
         public void Dispose()
@@ -43,17 +56,18 @@ namespace LargeFileViewer.Models.StreamReading
             }
         }
 
-        private byte[] CalculateBuffer(int lineNumber)
+        private byte[] CalculateBuffer(int lineNumber, int count)
         {
-            long bufferSize;
+            int bufferSize;
+            var endLine = lineNumber + count;
 
-            if (lineNumber != (_lineIndexes.Count - 1)) // check if request last line or not
+            if (endLine >= _lineIndexes.Count) // check if last line was requested
             {
-                bufferSize = _lineIndexes[lineNumber + 1] - _lineIndexes[lineNumber];
+                bufferSize = (int)(_stream.Length - _lineIndexes[lineNumber]);
             }
             else
             {
-                bufferSize = _stream.Length - _lineIndexes[lineNumber];
+                bufferSize = (int)(_lineIndexes[endLine] - _lineIndexes[lineNumber]);
             }
 
             return new byte[bufferSize];

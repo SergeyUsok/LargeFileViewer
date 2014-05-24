@@ -9,32 +9,41 @@
         <ResourceDictionary Source="View\Resources\MainWindowResources.xaml" />
     </Window.Resources>
 
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenFileCommand}" />
+        <KeyBinding Key="U" Modifiers="Control" Command="{Binding CloseFileCommand}" />
+        <KeyBinding Key="W" Modifiers="Control" Command="{Binding SaveFileCommand}" />
+    </Window.InputBindings>
+
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="19*"/>
-            <RowDefinition Height="301*"/>
+            <RowDefinition Height="27*"/>
+            <RowDefinition Height="274*"/>
         </Grid.RowDefinitions>
-
-
 
         <DockPanel Grid.Row="0">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
-                    <MenuItem Header="_Open" Command="{Binding OpenFileCommand}"/>
-                    <MenuItem Header="_Close" Command="{Binding CloseFileCommand}"/>
-                    <MenuItem Header="_Save" Command="{Binding SaveFileCommand}"/>
+                    <MenuItem Header="_Open Ctrl+O" Command="{Binding OpenFileCommand}"/>
+                    <MenuItem Header="_Close Ctrl+W" Command="{Binding CloseFileCommand}"/>
+                    <MenuItem Header="_Save Ctrl+S" Command="{Binding SaveFileCommand}"/>
                 </MenuItem>
             </Menu>
         </DockPanel>
 
-        <StackPanel Grid.Row="1"  Margin="10,10,10,0" >
+        <!--<StackPanel Grid.Row="1"  Margin="10,10,10,0" >
             <TextBlock Text="{Binding MemoryUsage}" />
             <ContentControl Content="{Binding CurrentViewState}"/>
-        </StackPanel>
-        
+        </StackPanel>-->
+
+        <TextBlock Text="{Binding MemoryUsage}" Grid.Row="1"  Margin="10,10,10,0" Grid.RowSpan="2"  />
+
+        <ContentControl Content="{Binding CurrentViewState}" Grid.Row="2" />
+
 
     </Grid>
 </Window>

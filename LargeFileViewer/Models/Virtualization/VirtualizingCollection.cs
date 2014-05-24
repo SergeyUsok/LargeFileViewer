@@ -112,7 +112,7 @@ namespace LargeFileViewer.Models.Virtualization
         public void ApplySort(ListSortDescriptionCollection sorts)
         {
             var a = sorts.OfType<ListSortDescription>().First();
-
+            
             _sorter.Sort(a.PropertyDescriptor.Name, a.SortDirection)
                 .ContinueWith(t =>
                     {
@@ -226,7 +226,7 @@ namespace LargeFileViewer.Models.Virtualization
 
         public bool Contains(object value)
         {
-            throw new NotSupportedException();
+            return false;
         }
 
         public void Clear()
