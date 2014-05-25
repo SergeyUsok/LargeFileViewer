@@ -67,7 +67,8 @@
     <Compile Include="Models\Sorting\Sorter.cs" />
     <Compile Include="Models\Sorting\SortInfo.cs" />
     <Compile Include="Models\Sorting\SortInfoEnumerator.cs" />
-    <Compile Include="Models\Sorting\SortInfoSerializer.cs" />
+    <Compile Include="Models\Sorting\SortInfoFactory.cs" />
+    <Compile Include="Models\Sorting\SortingStatusChangedEventArgs.cs" />
     <Compile Include="Models\StreamReading\IndexedStream.cs" />
     <Compile Include="Models\StreamReading\StreamIndexer.cs" />
     <Compile Include="Models\Virtualization\ColumnsProvider.cs" />

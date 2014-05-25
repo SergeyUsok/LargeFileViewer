@@ -14,7 +14,6 @@ namespace LargeFileViewer.Models.Sorting
         private readonly string _file;
         private SortInfo _current;
         private readonly StreamReader _streamReader;
-        private readonly SortInfoSerializer _serializer = new SortInfoSerializer();
 
         public SortInfoEnumerator([NotNull] Stream stream)
         {
@@ -50,7 +49,7 @@ namespace LargeFileViewer.Models.Sorting
             var moveNext = line != null;
 
             if (moveNext)
-                _current = _serializer.Deserialize(line);
+                _current = SortInfo.FromString(line);
 
             return moveNext;
         }

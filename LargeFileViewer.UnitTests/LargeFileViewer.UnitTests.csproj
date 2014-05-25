@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="MergeAscendingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SortAsyncTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -9,6 +9,7 @@ namespace LargeFileViewer.ViewModel.ViewStates
     {
         private readonly VirtualizingCollection _fileRowsCollection;
         private readonly FileRowsProvider _itemsProvider;
+        private bool _isViewEnabled = true;
 
         public FileViewViewModel([NotNull] FileRowsProvider itemsProvider)
         {
@@ -17,11 +18,27 @@ namespace LargeFileViewer.ViewModel.ViewStates
 
             _itemsProvider = itemsProvider;
             _fileRowsCollection = new VirtualizingCollection(itemsProvider);
+            _fileRowsCollection.SortingStatusChanged += (sender, args) => IsViewEnabled = !args.IsCurrentlySorting;
         }
 
         public VirtualizingCollection FileRowsCollection
         {
             get { return _fileRowsCollection; }
+        }
+
+        public bool IsViewEnabled
+        {
+            get { return _isViewEnabled; }
+            private set
+            {
+                _isViewEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int RowsCount
+        {
+            get { return _fileRowsCollection.Count; }
         }
 
         public void Dispose()

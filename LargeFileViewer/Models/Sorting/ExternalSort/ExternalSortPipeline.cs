@@ -9,7 +9,7 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
 {
     internal static class ExternalSortPipeline
     {
-        public static IEnumerable<IEnumerable<TSource>> Chunkify<TSource>(this IEnumerable<TSource> source, int chunkSize)
+        public static IEnumerable<IList<TSource>> Chunkify<TSource>(this IEnumerable<TSource> source, int chunkSize)
         {
             var accumulator = new List<TSource>(chunkSize);
 
@@ -28,7 +28,12 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
                 yield return accumulator;
         }
 
-        public static IEnumerable<PartialResult<TSource>> SortAscendingAsync<TSource, TKey>(this IEnumerable<IEnumerable<TSource>> source, Func<TSource, TKey>  keySelector)
+        public static IEnumerable<PartialResult<TSource>> SortAscendingAsync<TSource, TKey>(this IEnumerable<IEnumerable<TSource>> source, Func<TSource, TKey> keySelector)
+        {
+            return SortAscendingAsync(source, keySelector, CalculateDegreeOfParallelism());
+        }
+
+        public static IEnumerable<PartialResult<TSource>> SortAscendingAsync<TSource, TKey>(this IEnumerable<IEnumerable<TSource>> source, Func<TSource, TKey>  keySelector, int degreeOfParallelism)
         {
             if (source == null) 
                 throw new ArgumentNullException("source");
@@ -38,18 +43,15 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
 
             Func<IEnumerable<TSource>, PartialResult<TSource>> projector = part => new PartialResult<TSource>(part.OrderBy(keySelector).ForceEnumeration());
 
-            return new AsyncEnumerator<IEnumerable<TSource>, PartialResult<TSource>>(source, projector, 2);
+            return new AsyncEnumerator<IEnumerable<TSource>, PartialResult<TSource>>(source, projector, degreeOfParallelism);
         }
 
         public static IEnumerable<string> SavePartialResult<TSource>(this IEnumerable<PartialResult<TSource>> partialResults, Func<TSource, string> converter)
         {
-            return SavePartialResult(partialResults, converter, Path.GetTempFileName());
-        }
-
-        public static IEnumerable<string> SavePartialResult<TSource>(this IEnumerable<PartialResult<TSource>> partialResults, Func<TSource, string> converter, string  fileToSave)
-        {
             foreach (var partialResult in partialResults)
             {
+                var fileToSave = Path.GetTempFileName();
+
                 File.WriteAllLines(fileToSave, partialResult.Part.Select(pr => converter(pr)));
 
                 yield return fileToSave;
@@ -57,7 +59,7 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
         }
 
         public static IEnumerable<TSource> MergeAscending<TSource, TKey>(this IEnumerable<IEnumerator<TSource>> source, Func<TSource, TKey> keySelector)
-            where TKey : IComparable<TKey>, IComparable
+            where TKey : IComparable
         {
             var sourceEnumerators = source.Where(en => en.MoveNext()).OrderBy(en => keySelector(en.Current));
 
@@ -93,7 +95,7 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
         }
 
         private static void AddInSortedOrder<TSource, TKey>(this LinkedList<IEnumerator<TSource>> list, IEnumerator<TSource> enumerator, Func<TSource, TKey> keySelector)
-            where TKey : IComparable<TKey>, IComparable
+            where TKey : IComparable
         {
             var currentKey = keySelector(enumerator.Current);
 
@@ -121,6 +123,11 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
 
                 current = current.Next;
             }
+        }
+
+        private static int CalculateDegreeOfParallelism()
+        {
+            return Environment.ProcessorCount == 1 ? 2 : Environment.ProcessorCount;
         }
 
         #endregion

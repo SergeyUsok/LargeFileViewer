@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeFileViewer", "LargeFil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeFileViewer.UnitTests", "LargeFileViewer.UnitTests\LargeFileViewer.UnitTests.csproj", "{4BCB7DC3-32AA-4DAB-A6F6-F623146631E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeFileViewer.PerformanceTests", "LargeFileViewer.PerformanceTests\LargeFileViewer.PerformanceTests.csproj", "{623886B9-47B4-44A8-BFCC-90B03995883B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{4BCB7DC3-32AA-4DAB-A6F6-F623146631E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BCB7DC3-32AA-4DAB-A6F6-F623146631E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BCB7DC3-32AA-4DAB-A6F6-F623146631E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{623886B9-47B4-44A8-BFCC-90B03995883B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{623886B9-47B4-44A8-BFCC-90B03995883B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{623886B9-47B4-44A8-BFCC-90B03995883B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{623886B9-47B4-44A8-BFCC-90B03995883B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

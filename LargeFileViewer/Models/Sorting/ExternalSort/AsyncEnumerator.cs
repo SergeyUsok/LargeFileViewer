@@ -29,11 +29,13 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
                     foreach (var item in _source)
                     {
                         var current = item;
-                        
-                        var task = Task.Run(() => _projector(current));
+
+                        var task = Task.Factory.StartNew(() => _projector(current), TaskCreationOptions.LongRunning);//.Run();
 
                         _intermediateResults.Add(task);
                     }
+
+                    _intermediateResults.CompleteAdding();
                 });
 
             _enumerator = _intermediateResults.GetConsumingEnumerable().GetEnumerator();
@@ -64,7 +66,10 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
 
         public TResult Current
         {
-            get { return _enumerator.Current.Result; }
+            get 
+            { 
+                return _enumerator.Current.Result;
+            }
         }
 
         object IEnumerator.Current

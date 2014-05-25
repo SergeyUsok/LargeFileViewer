@@ -113,10 +113,13 @@ namespace LargeFileViewer.Models.Virtualization
         {
             var a = sorts.OfType<ListSortDescription>().First();
             
+            OnSortingStatusChanged(true);
+
             _sorter.Sort(a.PropertyDescriptor.Name, a.SortDirection)
                 .ContinueWith(t =>
                     {
                         _itemsProvider = t.Result;
+                        OnSortingStatusChanged(false);
                         OnCollectionChanged(a.PropertyDescriptor);
                     }, TaskScheduler.FromCurrentSynchronizationContext());
         }
@@ -174,6 +177,16 @@ namespace LargeFileViewer.Models.Virtualization
         #endregion
 
         #region Notification
+
+        public event EventHandler<SortingStatusChangedEventArgs> SortingStatusChanged;
+
+        private void OnSortingStatusChanged(bool isCurrentlySorting)
+        {
+            EventHandler<SortingStatusChangedEventArgs> handler = SortingStatusChanged;
+
+            if (handler != null)
+                handler(this, new SortingStatusChangedEventArgs(isCurrentlySorting));
+        }
 
         public bool SupportsChangeNotification
         {

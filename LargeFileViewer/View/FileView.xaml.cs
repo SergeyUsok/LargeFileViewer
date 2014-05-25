@@ -24,5 +24,10 @@ namespace LargeFileViewer.View
         {
             InitializeComponent();
         }
+
+        private void OnAutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            e.Column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+        }
     }
 }

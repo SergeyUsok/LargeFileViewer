@@ -38,7 +38,7 @@ namespace LargeFileViewer.Models.Virtualization
         {
             var row = _indexedStream.GetLine(rowNumber);
 
-            return CreateColumns(row, rowNumber);
+            return CreateColumns(row, ++rowNumber);
         }
 
         public IEnumerable<IEnumerable<FileColumn>> GetColumnsForRange(int rowNumber, int count)

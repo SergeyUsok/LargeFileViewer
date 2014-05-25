@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using LargeFileViewer.Annotations;
+using LargeFileViewer.Models.Sorting.ExternalSort;
 using LargeFileViewer.Models.Virtualization;
 using LargeFileViewer.ViewModel.CollectionBinding;
 
@@ -14,7 +14,7 @@ namespace LargeFileViewer.Models.Sorting
     class Sorter
     {
         private readonly Dictionary<string, SortedRowsProvider> _providersCache = new Dictionary<string, SortedRowsProvider>();
-
+        private readonly SortInfoFactory _sortInfoFactory = new SortInfoFactory();
         private const int ChunkSize = 500000;
 
         public IItemsProvider<FileRow> OriginalProvider { get; private set; }
@@ -55,12 +55,24 @@ namespace LargeFileViewer.Models.Sorting
 
         private List<int> ApplyExternalSort(string column)
         {
-            throw new NotImplementedException();
+            return
+                _sortInfoFactory.GetSortInfos(OriginalProvider, column)
+                                .Chunkify(ChunkSize)
+                                .SortAscendingAsync(si => si.ColumnValue)
+                                .SavePartialResult(si => si.ToString())
+                                .Select(f => new SortInfoEnumerator(f))
+                                .MergeAscending(si => si.ColumnValue)
+                                .Select(si => si.RowIndex)
+                                .ToList();
         }
 
         private List<int> ApplyInMemorySort(string column)
         {
-            throw new NotImplementedException();
+            return
+                _sortInfoFactory.GetSortInfos(OriginalProvider, column)
+                                .OrderBy(si => si.ColumnValue)
+                                .Select(si => si.RowIndex)
+                                .ToList();
         }
 
         private bool IsChunkingReqiured()
