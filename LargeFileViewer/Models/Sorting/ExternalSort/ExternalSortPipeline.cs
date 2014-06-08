@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,34 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
 {
     internal static class ExternalSortPipeline
     {
+        public static IEnumerable<IList<TSource>> ChunkifyAsync<TSource>(this IEnumerable<TSource> source, int chunkSize)
+        {
+            var collection = new BlockingCollection<IList<TSource>>(CalculateDegreeOfParallelism());
+
+            Task.Run(() =>
+                {
+                    var accumulator = new List<TSource>(chunkSize);
+
+                    foreach (var item in source)
+                    {
+                        accumulator.Add(item);
+
+                        if (accumulator.Count != chunkSize)
+                            continue;
+
+                        collection.Add(accumulator);
+                        accumulator = new List<TSource>(chunkSize);
+                    }
+
+                    if (accumulator.Count > 0)
+                        collection.Add(accumulator);
+
+                    collection.CompleteAdding();
+                });
+
+            return collection.GetConsumingEnumerable();
+        }
+
         public static IEnumerable<IList<TSource>> Chunkify<TSource>(this IEnumerable<TSource> source, int chunkSize)
         {
             var accumulator = new List<TSource>(chunkSize);

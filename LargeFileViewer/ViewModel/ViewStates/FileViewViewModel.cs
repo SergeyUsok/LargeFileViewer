@@ -18,7 +18,7 @@ namespace LargeFileViewer.ViewModel.ViewStates
 
             _itemsProvider = itemsProvider;
             _fileRowsCollection = new VirtualizingCollection(itemsProvider);
-            _fileRowsCollection.SortingStatusChanged += (sender, args) => IsViewEnabled = !args.IsCurrentlySorting;
+            _fileRowsCollection.ProcessingStatusChanged += (sender, args) => IsViewEnabled = !args.IsCurrentlyProcessing;
         }
 
         public VirtualizingCollection FileRowsCollection

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LargeFileViewer.Annotations;
+using LargeFileViewer.Models.Sorting;
 using LargeFileViewer.Models.StreamReading;
 
 namespace LargeFileViewer.Models.Virtualization
@@ -41,6 +42,17 @@ namespace LargeFileViewer.Models.Virtualization
             return CreateColumns(row, ++rowNumber);
         }
 
+        public IEnumerable<FileColumn> GetColumnsSet(string column, Range range)
+        {
+            var columnIndex = Array.IndexOf(Header, column);
+
+            var index = range.StartIndex - 1;
+            var type = GetColumnType(column);
+
+            return _indexedStream.GetColumnsSet(columnIndex, range.StartIndex, range.Count, _columnsSeparator.First())
+                .Select(value => FileColumn.Create(index, column, value, type));
+        }
+
         public IEnumerable<IEnumerable<FileColumn>> GetColumnsForRange(int rowNumber, int count)
         {
             return _indexedStream.GetLines(rowNumber, count)
@@ -50,9 +62,9 @@ namespace LargeFileViewer.Models.Virtualization
         private IEnumerable<FileColumn> CreateColumns(string row, int rowNumber)
         {
             var columns = row.Split(_columnsSeparator, StringSplitOptions.None)
-                            .Zip(Header, (value, header) => FileColumn.Create(header, value, typeof (string)));
+                            .Zip(Header, (value, header) => FileColumn.Create(rowNumber, header, value, typeof (string)));
 
-            yield return FileColumn.Create("Row #", rowNumber, typeof(int)); // in order to show row number
+            yield return FileColumn.Create(rowNumber, "Row #", rowNumber.ToString(), typeof(int)); // in order to show row number
 
             foreach (var fileColumn in columns)
             {
@@ -66,6 +78,11 @@ namespace LargeFileViewer.Models.Virtualization
             {
                 _indexedStream.Dispose();
             }
+        }
+
+        private Type GetColumnType(string column)
+        {
+            return typeof (string);
         }
 
         private string[] Header { get; set; }

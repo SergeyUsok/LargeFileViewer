@@ -59,16 +59,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\FileLoader.cs" />
+    <Compile Include="Models\Sorting\ArrayExtensions.cs" />
     <Compile Include="Models\Sorting\ExternalSort\AsyncEnumerator.cs" />
     <Compile Include="Models\Sorting\ExternalSort\ExternalSortPipeline.cs" />
     <Compile Include="Models\Sorting\ExternalSort\PartialResult.cs" />
     <Compile Include="Models\Sorting\Range.cs" />
     <Compile Include="Models\Sorting\SortedRowsProvider.cs" />
     <Compile Include="Models\Sorting\Sorter.cs" />
-    <Compile Include="Models\Sorting\SortInfo.cs" />
-    <Compile Include="Models\Sorting\SortInfoEnumerator.cs" />
-    <Compile Include="Models\Sorting\SortInfoFactory.cs" />
-    <Compile Include="Models\Sorting\SortingStatusChangedEventArgs.cs" />
+    <Compile Include="Models\Sorting\FileColumnEnumerator.cs" />
+    <Compile Include="Models\Sorting\ProcessStatusChangedEventArgs.cs" />
     <Compile Include="Models\StreamReading\IndexedStream.cs" />
     <Compile Include="Models\StreamReading\StreamIndexer.cs" />
     <Compile Include="Models\Virtualization\ColumnsProvider.cs" />

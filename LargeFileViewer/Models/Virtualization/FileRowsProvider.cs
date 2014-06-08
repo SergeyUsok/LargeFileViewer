@@ -41,5 +41,10 @@ namespace LargeFileViewer.Models.Virtualization
             if (_columnsProvider != null)
                 _columnsProvider.Dispose();
         }
+
+        public ColumnsProvider ColumnsProvider
+        {
+            get { return _columnsProvider; }
+        }
     }
 }

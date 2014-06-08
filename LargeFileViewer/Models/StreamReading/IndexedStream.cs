@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LargeFileViewer.Models.Sorting;
 
 namespace LargeFileViewer.Models.StreamReading
 {
@@ -46,6 +47,48 @@ namespace LargeFileViewer.Models.StreamReading
 
             return Encoding.UTF8.GetString(buffer)
                            .Split('\n').Select(line => line.TrimEnd('\r'));
+        }
+
+        public IEnumerable<string> GetColumnsSet(int columnNumber, int startLine, int count, string columnSeparator)
+        {
+            _stream.Position = _lineIndexes[startLine];
+
+            var buffer = CalculateBuffer(startLine, count);
+
+            _stream.Read(buffer, 0, buffer.Length);
+
+            var separator = Encoding.UTF8.GetBytes(columnSeparator).First();
+
+            return GetRawColumns(buffer, columnNumber, separator)
+                    .Select(rawColumn => Encoding.UTF8.GetString(rawColumn))
+                    .ToList(); // enforce enumeration in order to avoid parrallel access to stream
+        }
+
+        private IEnumerable<byte[]> GetRawColumns(byte[] buffer, int columnNumber, byte separator)
+        {
+            var currentColumn = 0; // column enumeration starts from 0
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (currentColumn == columnNumber)
+                {
+                    var startIndex = i;
+                    do
+                    {
+                        i++;
+                    } while (buffer[i] != separator && buffer[i] != 10);
+
+                    var length = i - startIndex;
+
+                    yield return buffer.SubArray(startIndex, length);
+                }
+
+                if (buffer[i] == separator)
+                    currentColumn++;
+
+                if (buffer[i] == 10) // if end of line is reached reset column number to first (0)
+                    currentColumn = 0;
+            }
         }
 
         public void Dispose()

@@ -11,7 +11,7 @@ using LargeFileViewer.ViewModel.CollectionBinding;
 
 namespace LargeFileViewer.Models.Virtualization
 {
-    class VirtualizingCollection : IList<FileRow>, ITypedList, IBindingListView
+    class VirtualizingCollection : IList<FileRow>, ITypedList, IBindingListView, INotifyCollectionChanged
     {
         private IItemsProvider<FileRow> _itemsProvider;
         private readonly Sorter _sorter;
@@ -22,7 +22,7 @@ namespace LargeFileViewer.Models.Virtualization
                 throw new ArgumentNullException("itemsProvider");
 
             _itemsProvider = itemsProvider;
-            _sorter = new Sorter(_itemsProvider);
+            _sorter = new Sorter((FileRowsProvider)_itemsProvider);
         }
 
         public IEnumerator<FileRow> GetEnumerator()
@@ -113,14 +113,14 @@ namespace LargeFileViewer.Models.Virtualization
         {
             var a = sorts.OfType<ListSortDescription>().First();
             
-            OnSortingStatusChanged(true);
+            OnProcessingStatusChanged(true);
 
             _sorter.Sort(a.PropertyDescriptor.Name, a.SortDirection)
                 .ContinueWith(t =>
                     {
                         _itemsProvider = t.Result;
-                        OnSortingStatusChanged(false);
-                        OnCollectionChanged(a.PropertyDescriptor);
+                        OnProcessingStatusChanged(false);
+                        OnCollectionChanged();
                     }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
@@ -178,29 +178,30 @@ namespace LargeFileViewer.Models.Virtualization
 
         #region Notification
 
-        public event EventHandler<SortingStatusChangedEventArgs> SortingStatusChanged;
+        public event EventHandler<ProcessStatusChangedEventArgs> ProcessingStatusChanged;
 
-        private void OnSortingStatusChanged(bool isCurrentlySorting)
+        private void OnProcessingStatusChanged(bool isCurrentlyProcessing)
         {
-            EventHandler<SortingStatusChangedEventArgs> handler = SortingStatusChanged;
+            EventHandler<ProcessStatusChangedEventArgs> handler = ProcessingStatusChanged;
 
             if (handler != null)
-                handler(this, new SortingStatusChangedEventArgs(isCurrentlySorting));
+                handler(this, new ProcessStatusChangedEventArgs(isCurrentlyProcessing));
         }
 
         public bool SupportsChangeNotification
         {
-            get { return true; }
+            get { return false; }
         }
 
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
         public event ListChangedEventHandler ListChanged;
 
-        private void OnCollectionChanged(PropertyDescriptor descriptor)
+        private void OnCollectionChanged()
         {
-            var handler = ListChanged;
+            var handler = CollectionChanged;
 
             if(handler != null)
-                handler(this, new ListChangedEventArgs(ListChangedType.Reset, descriptor));
+                handler(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         #endregion

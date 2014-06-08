@@ -2,20 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LargeFileViewer.Annotations;
+using LargeFileViewer.Models.Virtualization;
 
 namespace LargeFileViewer.Models.Sorting
 {
-    class SortInfoEnumerator : IEnumerator<SortInfo>
+    class FileColumnEnumerator : IEnumerator<FileColumn>
     {
         private readonly string _file;
-        private SortInfo _current;
+        private FileColumn _current;
         private readonly StreamReader _streamReader;
 
-        public SortInfoEnumerator([NotNull] Stream stream)
+        public FileColumnEnumerator([NotNull] Stream stream)
         {
             if (stream == null) 
                 throw new ArgumentNullException("stream");
@@ -23,7 +21,7 @@ namespace LargeFileViewer.Models.Sorting
             _streamReader = new StreamReader(stream);
         }
 
-        public SortInfoEnumerator(string file)
+        public FileColumnEnumerator(string file)
             :this(File.OpenRead(file))
         {
             _file = file;
@@ -49,7 +47,7 @@ namespace LargeFileViewer.Models.Sorting
             var moveNext = line != null;
 
             if (moveNext)
-                _current = SortInfo.FromString(line);
+                _current = FileColumn.FromString(line);
 
             return moveNext;
         }
@@ -59,7 +57,7 @@ namespace LargeFileViewer.Models.Sorting
             throw new NotImplementedException();
         }
 
-        public SortInfo Current
+        public FileColumn Current
         {
             get { return _current; }
         }

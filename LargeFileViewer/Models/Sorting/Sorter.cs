@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,19 +6,18 @@ using System.Threading.Tasks;
 using LargeFileViewer.Annotations;
 using LargeFileViewer.Models.Sorting.ExternalSort;
 using LargeFileViewer.Models.Virtualization;
-using LargeFileViewer.ViewModel.CollectionBinding;
 
 namespace LargeFileViewer.Models.Sorting
 {
     class Sorter
     {
         private readonly Dictionary<string, SortedRowsProvider> _providersCache = new Dictionary<string, SortedRowsProvider>();
-        private readonly SortInfoFactory _sortInfoFactory = new SortInfoFactory();
+        
         private const int ChunkSize = 500000;
 
-        public IItemsProvider<FileRow> OriginalProvider { get; private set; }
+        public FileRowsProvider OriginalProvider { get; private set; }
 
-        public Sorter([NotNull] IItemsProvider<FileRow> originalProvider)
+        public Sorter([NotNull] FileRowsProvider originalProvider)
         {
             if (originalProvider == null) 
                 throw new ArgumentNullException("originalProvider");
@@ -55,23 +53,23 @@ namespace LargeFileViewer.Models.Sorting
 
         private List<int> ApplyExternalSort(string column)
         {
-            return
-                _sortInfoFactory.GetSortInfos(OriginalProvider, column)
-                                .Chunkify(ChunkSize)
-                                .SortAscendingAsync(si => si.ColumnValue)
-                                .SavePartialResult(si => si.ToString())
-                                .Select(f => new SortInfoEnumerator(f))
-                                .MergeAscending(si => si.ColumnValue)
-                                .Select(si => si.RowIndex)
+            return GenerateRanges(OriginalProvider.FetchCount(), ChunkSize)
+                                //.Chunkify(ChunkSize)
+                                .Select(range => OriginalProvider.ColumnsProvider.GetColumnsSet(column, range))
+                                .SortAscendingAsync(fc => fc.Value)
+                                .SavePartialResult(fc => fc.ToString())
+                                .Select(f => new FileColumnEnumerator(f))
+                                .MergeAscending(fc => fc.Value)
+                                .Select(fc => fc.ParentRowIndex)
                                 .ToList();
         }
 
         private List<int> ApplyInMemorySort(string column)
         {
-            return
-                _sortInfoFactory.GetSortInfos(OriginalProvider, column)
-                                .OrderBy(si => si.ColumnValue)
-                                .Select(si => si.RowIndex)
+            return GenerateRanges(OriginalProvider.FetchCount(), OriginalProvider.FetchCount())
+                                .SelectMany(range => OriginalProvider.ColumnsProvider.GetColumnsSet(column, range))
+                                .OrderBy(fc => fc.Value)
+                                .Select(fc => fc.ParentRowIndex)
                                 .ToList();
         }
 
@@ -80,6 +78,21 @@ namespace LargeFileViewer.Models.Sorting
             const int halfOfChunkSize = ChunkSize/2;
 
             return OriginalProvider.FetchCount() > (ChunkSize + halfOfChunkSize);
+        }
+
+        private IEnumerable<Range> GenerateRanges(int totalCount, int rangeCount)
+        {
+            var startIndex = 0;
+
+            for (; (startIndex + rangeCount) < totalCount; startIndex += rangeCount)
+            {
+                yield return new Range { Count = rangeCount, StartIndex = startIndex };
+            }
+
+            if (totalCount > startIndex)
+            {
+                yield return new Range { StartIndex = startIndex, Count = totalCount - startIndex };
+            }
         }
     }
 }
