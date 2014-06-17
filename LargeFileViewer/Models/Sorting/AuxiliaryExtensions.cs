@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LargeFileViewer.Models.Virtualization;
 
 namespace LargeFileViewer.Models.Sorting
 {
-    internal static class ArrayExtensions
+    internal static class AuxiliaryExtensions
     {
         public static TSource[] SubArray<TSource>(this TSource[] source, int startIndex, int length)
         {
@@ -21,6 +23,24 @@ namespace LargeFileViewer.Models.Sorting
             }
 
             return subArray;
+        }
+
+        public static IEnumerable<FileColumn> Deserialize(this FileInfo file)
+        {
+            using (var reader = new StreamReader(file.FullName))
+            {
+                string line;
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    yield return FileColumn.FromString(line);
+                }
+            }
+
+            if (File.Exists(file.FullName))
+            {
+                File.Delete(file.FullName);
+            }
         }
     }
 }

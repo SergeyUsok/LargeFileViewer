@@ -15,7 +15,8 @@
             <RowDefinition Height="413*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="{Binding RowsCount, StringFormat={}Rows count: {0:n0}}" Grid.RowSpan="2" Grid.Row="0" Margin="10,0,0,0" FontWeight="Bold"/>
+        
+        <TextBlock Text="{Binding RowsCount, StringFormat={}Rows count: {0:n0}}" Grid.Row="0" Margin="14,0,0,0" FontWeight="Bold" HorizontalAlignment="Left"/>
 
         <DataGrid ItemsSource="{Binding FileRowsCollection}" Style="{StaticResource FileView}" Grid.Row="1" />
     </Grid>

@@ -74,8 +74,8 @@ namespace LargeFileViewer.Models
 
                                      return dic;
                                  })
-                             .First()
-                             .Key
+                             .Keys
+                             .FirstOrDefault()
                              .ToString();
         }
 

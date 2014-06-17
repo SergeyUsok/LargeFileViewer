@@ -30,7 +30,7 @@ namespace LargeFileViewer.Models.Sorting.ExternalSort
                     {
                         var current = item;
 
-                        var task = Task.Factory.StartNew(() => _projector(current), TaskCreationOptions.LongRunning);//.Run();
+                        var task = Task.Factory.StartNew(() => _projector(current));//.Run();
 
                         _intermediateResults.Add(task);
                     }

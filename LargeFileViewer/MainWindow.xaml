@@ -25,18 +25,20 @@
             <RowDefinition Height="276*"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0">
-            <Menu DockPanel.Dock="Top" Height="19">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Open Ctrl+O" Command="{Binding OpenFileCommand}"/>
-                    <MenuItem Header="_Close Ctrl+W" Command="{Binding CloseFileCommand}"/>
-                    <MenuItem Header="_Save Ctrl+S" Command="{Binding SaveFileCommand}"/>
-                </MenuItem>
-            </Menu>
-        </DockPanel>
+        <StackPanel Grid.RowSpan="2">
+            <DockPanel Grid.Row="0">
+                <Menu DockPanel.Dock="Top" Height="19">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="_Open Ctrl+O" Command="{Binding OpenFileCommand}"/>
+                        <MenuItem Header="_Close Ctrl+W" Command="{Binding CloseFileCommand}"/>
+                        <MenuItem Header="_Save Ctrl+S" Command="{Binding SaveFileCommand}"/>
+                    </MenuItem>
+                </Menu>
+            </DockPanel>
 
-        <TextBlock Text="{Binding MemoryUsage}" Grid.Row="1"  Margin="10,0,0,0" FontWeight="Bold"/>
-
+            <TextBlock Text="{Binding MemoryUsage}" Grid.Row="1"  Margin="10,0,0,0" FontWeight="Bold"/>
+        </StackPanel>
+        
         <ContentControl Content="{Binding CurrentViewState}" Grid.Row="2"/>
     </Grid>
 </Window>

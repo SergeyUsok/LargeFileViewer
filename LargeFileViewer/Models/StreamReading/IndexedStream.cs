@@ -60,7 +60,7 @@ namespace LargeFileViewer.Models.StreamReading
             var separator = Encoding.UTF8.GetBytes(columnSeparator).First();
 
             return GetRawColumns(buffer, columnNumber, separator)
-                    .Select(rawColumn => Encoding.UTF8.GetString(rawColumn))
+                    .Select(rawColumn => Encoding.UTF8.GetString(rawColumn).TrimEnd('\r', '\n'))
                     .ToList(); // enforce enumeration in order to avoid parrallel access to stream
         }
 
@@ -86,7 +86,7 @@ namespace LargeFileViewer.Models.StreamReading
                 if (buffer[i] == separator)
                     currentColumn++;
 
-                if (buffer[i] == 10) // if end of line is reached reset column number to first (0)
+                if (buffer[i] == 10) // if end of line is reached reset column number to 0
                     currentColumn = 0;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +24,6 @@ namespace LargeFileViewer.Models.Sorting
                 throw new ArgumentNullException("originalProvider");
 
             OriginalProvider = originalProvider;
-            //_chunkCreator = new ChunkCreator(ChunkSize, originalProvider);
         }
 
         public Task<SortedRowsProvider> Sort(string column, ListSortDirection direction)
@@ -58,7 +58,7 @@ namespace LargeFileViewer.Models.Sorting
                                 .Select(range => OriginalProvider.ColumnsProvider.GetColumnsSet(column, range))
                                 .SortAscendingAsync(fc => fc.Value)
                                 .SavePartialResult(fc => fc.ToString())
-                                .Select(f => new FileColumnEnumerator(f))
+                                .Select(file => new FileInfo(file).Deserialize().GetEnumerator())
                                 .MergeAscending(fc => fc.Value)
                                 .Select(fc => fc.ParentRowIndex)
                                 .ToList();

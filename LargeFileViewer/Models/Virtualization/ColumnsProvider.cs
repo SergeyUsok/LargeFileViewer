@@ -50,7 +50,7 @@ namespace LargeFileViewer.Models.Virtualization
             var type = GetColumnType(column);
 
             return _indexedStream.GetColumnsSet(columnIndex, range.StartIndex, range.Count, _columnsSeparator.First())
-                .Select(value => FileColumn.Create(index, column, value, type));
+                .Select(value => FileColumn.Create(++index, column, value, type));
         }
 
         public IEnumerable<IEnumerable<FileColumn>> GetColumnsForRange(int rowNumber, int count)

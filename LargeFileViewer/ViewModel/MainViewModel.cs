@@ -73,8 +73,11 @@ namespace LargeFileViewer.ViewModel
 
         private void ChangeViewState(ViewStateViewModel viewModel)
         {
-            DisposeIfNecessary(CurrentViewState as IDisposable);
+            var oldViewState = CurrentViewState as IDisposable;
+
             CurrentViewState = viewModel;
+
+            DisposeIfNecessary(oldViewState);
         }
 
         private void DisposeIfNecessary(IDisposable disposable)
