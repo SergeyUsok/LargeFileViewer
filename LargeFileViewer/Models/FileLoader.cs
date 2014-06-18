@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LargeFileViewer.Annotations;
+using LargeFileViewer.Models.Detectors;
 using LargeFileViewer.Models.StreamReading;
 using LargeFileViewer.Models.Virtualization;
 
@@ -55,31 +56,10 @@ namespace LargeFileViewer.Models
 
         private string DetectColumnsSeparator()
         {
-            return GetLines().Select(line => line.ToCharArray()
-                                                 .Where(c => !char.IsLetterOrDigit(c))
-                                                 .GroupBy(c => c)
-                                                 .Select(c => new {Key = c.Key, Count = c.Count()})
-                                                 .Where(gr => gr.Count > 1)
-                                                 .ToDictionary(gr => gr.Key, gr => gr.Count)
-                                    )
-                             .Aggregate((total, next) =>
-                                 {
-                                     var dic = new Dictionary<char, int>();
-
-                                     foreach (var charCount in total)
-                                     {
-                                         if(next.ContainsKey(charCount.Key) && charCount.Value == next[charCount.Key])
-                                             dic.Add(charCount.Key, charCount.Value);
-                                     }
-
-                                     return dic;
-                                 })
-                             .Keys
-                             .FirstOrDefault()
-                             .ToString();
+            return ColumnsSeparatorDetector.DetectColumnSeparator(GetRows());
         }
 
-        private IEnumerable<string> GetLines()
+        private IEnumerable<string> GetRows()
         {
             var counter = 0;
             var linesLimit = 5;

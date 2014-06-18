@@ -73,10 +73,11 @@ namespace LargeFileViewer.Models.StreamReading
                 if (currentColumn == columnNumber)
                 {
                     var startIndex = i;
-                    do
+                    
+                    while (buffer[i] != separator && buffer[i] != 10)
                     {
                         i++;
-                    } while (buffer[i] != separator && buffer[i] != 10);
+                    }
 
                     var length = i - startIndex;
 

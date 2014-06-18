@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColumnsSeparatorDetectorTest.cs" />
+    <Compile Include="ColumnTypeDetectorTest.cs" />
     <Compile Include="MergeAscendingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SortAsyncTest.cs" />

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LargeFileViewer.Annotations;
+using LargeFileViewer.Models.Detectors;
 using LargeFileViewer.Models.Sorting;
 using LargeFileViewer.Models.StreamReading;
 
@@ -12,9 +13,10 @@ namespace LargeFileViewer.Models.Virtualization
     class ColumnsProvider : IDisposable
     {
         private readonly IndexedStream _indexedStream;
+        private readonly Dictionary<string, Type> _columnTypes;
         private readonly string[] _columnsSeparator;
 
-        private ColumnsProvider([NotNull] IndexedStream indexedStream, [NotNull] string columnsSeparator)
+        private ColumnsProvider([NotNull] IndexedStream indexedStream, [NotNull] string columnsSeparator, Dictionary<string, Type> columnTypes)
         {
             if (indexedStream == null) 
                 throw new ArgumentNullException("indexedStream");
@@ -23,16 +25,37 @@ namespace LargeFileViewer.Models.Virtualization
                 throw new ArgumentNullException("columnsSeparator");
 
             _indexedStream = indexedStream;
+            _columnTypes = columnTypes;
             _columnsSeparator = new string[] { columnsSeparator };
         }
 
         public static ColumnsProvider Create(IndexedStream indexedStream, string columnsSeparator)
         {
-            var provider = new ColumnsProvider(indexedStream, columnsSeparator);
+            var headers = indexedStream.Header.Split(new[] { columnsSeparator }, StringSplitOptions.None);
 
-            provider.Header = indexedStream.Header.Split(provider._columnsSeparator, StringSplitOptions.None);
+            var columnTypes = DetectColumnTypes(indexedStream, columnsSeparator, headers);
+
+            var provider = new ColumnsProvider(indexedStream, columnsSeparator, columnTypes);
+
+            provider.Header = headers;
 
             return provider;
+        }
+
+        private static Dictionary<string, Type> DetectColumnTypes(IndexedStream indexedStream, string columnsSeparator, string[] headers)
+        {
+            var types = new Dictionary<string, Type>();
+
+            for (int columnNumber = 0; columnNumber < headers.Length; columnNumber++)
+            {
+                var columnValues = indexedStream.GetColumnsSet(columnNumber, 0, 10, columnsSeparator); // take top 10 rows for a investigation
+
+                var type = ColumnTypeDetector.DetectColumnType(columnValues);
+
+                types.Add(headers[columnNumber], type);
+            }
+
+            return types;
         }
 
         public IEnumerable<FileColumn> GetColumns(int rowNumber)
@@ -47,10 +70,9 @@ namespace LargeFileViewer.Models.Virtualization
             var columnIndex = Array.IndexOf(Header, column);
 
             var index = range.StartIndex - 1;
-            var type = GetColumnType(column);
 
             return _indexedStream.GetColumnsSet(columnIndex, range.StartIndex, range.Count, _columnsSeparator.First())
-                .Select(value => FileColumn.Create(++index, column, value, type));
+                .Select(value => FileColumn.Create(++index, column, value, _columnTypes[column]));
         }
 
         public IEnumerable<IEnumerable<FileColumn>> GetColumnsForRange(int rowNumber, int count)
@@ -78,11 +100,6 @@ namespace LargeFileViewer.Models.Virtualization
             {
                 _indexedStream.Dispose();
             }
-        }
-
-        private Type GetColumnType(string column)
-        {
-            return typeof (string);
         }
 
         private string[] Header { get; set; }

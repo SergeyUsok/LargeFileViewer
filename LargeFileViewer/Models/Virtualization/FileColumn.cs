@@ -63,6 +63,8 @@ namespace LargeFileViewer.Models.Virtualization
                     return typeof(double);
                 case "System.Boolean":
                     return typeof(bool);
+                case "System.DateTime":
+                    return typeof(DateTime);
                 default:
                     return typeof(string);
             }
