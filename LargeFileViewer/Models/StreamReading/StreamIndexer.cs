@@ -9,13 +9,13 @@ namespace LargeFileViewer.Models.StreamReading
 {
     class StreamIndexer
     {
-        public IndexedStream GetIndexedStream(Stream stream, Action counter)
+        public IndexedStream GetIndexedStream(Stream stream, Action<int> reportProgress)
         {
             DetectHeaderStartPosition(stream);
 
             var header = GetHeader(stream);
 
-            var rowIndexes = GetRowsIndexes(stream, counter);
+            var rowIndexes = GetRowsIndexes(stream, reportProgress);
 
             return new IndexedStream(header, stream, rowIndexes);
         }
@@ -49,23 +49,33 @@ namespace LargeFileViewer.Models.StreamReading
             return Encoding.UTF8.GetPreamble().SequenceEqual(maybeBom);
         }
 
-        private List<long> GetRowsIndexes(Stream stream, Action counter)
+        private List<long> GetRowsIndexes(Stream stream, Action<int> reportProgress)
         {
             var rowIndexes = new List<long>();
-            var byteRead = 0; 
+            var byteRead = 0;
+            var processedBytesCount = 0L;
             rowIndexes.Add(stream.Position); // remember first line start position
 
-            while ((byteRead = stream.ReadByte()) != -1) // where -1 - is end of stream
+            while ((byteRead = stream.ReadByte()) != -1) // where -1 is end of stream
             {
                 if (IsEndOfLine(byteRead))
                 {
                     rowIndexes.Add(stream.Position);
                 }
 
-                counter();
+                processedBytesCount++;
+
+                var progress = (int)(100 * processedBytesCount / stream.Length);
+
+                reportProgress(progress);
             }
 
             return rowIndexes;
+        }
+
+        private void ProcessBuffer(byte buffer)
+        {
+            
         }
 
         private bool IsEndOfLine(int byteToCheck)

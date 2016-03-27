@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using LargeFileViewer.Annotations;
 using LargeFileViewer.Models.Detectors;
 using LargeFileViewer.Models.StreamReading;
@@ -22,20 +21,16 @@ namespace LargeFileViewer.Models
             _filePath = filePath;
         }
 
-        public FileRowsProvider LoadFile(Action counter)
+        public FileRowsProvider LoadFile(Action<int> reportProgress)
         {
             var stream = OpenStream();
 
-            FileLength = stream.Length;
-
             var indexer = new StreamIndexer();
 
-            var indexedStream = indexer.GetIndexedStream(stream, counter);
+            var indexedStream = indexer.GetIndexedStream(stream, reportProgress);
 
             return new FileRowsProvider(ColumnsProvider.Create(indexedStream, ColumnsSeparator), indexedStream.RowsCount);
         }
-
-        public long FileLength { get; private set; }
 
         public string ColumnsSeparator
         {

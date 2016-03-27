@@ -15,9 +15,7 @@ namespace LargeFileViewer.UnitTests
         [Test, TestCaseSource("TestCases")]
         public Type DetectColumnTypeTest(IEnumerable<string> columnValues)
         {
-            //  Arrange
-            //var detector = new ColumnTypeDetector();
-
+            // Arrange
             // Act, Assert
             return ColumnTypeDetector.DetectColumnType(columnValues);
         }
@@ -27,7 +25,7 @@ namespace LargeFileViewer.UnitTests
             get
             {
                 yield return
-                    new TestCaseData(new object[] {new[] {"1", "2", "3", "4", "5"}}).SetName("DetectsThatColumnIsInteger").Returns(typeof (int));
+                    new TestCaseData(new object[] { new[] { "1", "2", "-3", "4", "5" } }).SetName("DetectsThatColumnIsInteger").Returns(typeof(int));
                 yield return
                     new TestCaseData(new object[] {new[] {"1,4", "7", "3", "4", "2.3"}}).SetName("DetectsThatColumnIsDouble").Returns(typeof (double));
                 yield return

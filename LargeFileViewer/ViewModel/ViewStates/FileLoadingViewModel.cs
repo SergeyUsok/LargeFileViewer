@@ -6,13 +6,12 @@ using LargeFileViewer.View;
 
 namespace LargeFileViewer.ViewModel.ViewStates
 {
-    class LoadingViewModel : ViewStateViewModel
+    class FileLoadingViewModel : ViewStateViewModel
     {
         private readonly FileLoader _fileLoader;
         private int _loadedPercents;
-        private long _counter;
 
-        public LoadingViewModel(string filePath)
+        public FileLoadingViewModel(string filePath)
         {
             if(string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("filePath is null or empty string");
@@ -35,7 +34,7 @@ namespace LargeFileViewer.ViewModel.ViewStates
 
         public Task<FileRowsProvider> LoadFile()
         {
-            return Task.Run(() => _fileLoader.LoadFile(() => ++Counter));
+            return Task.Run(() => _fileLoader.LoadFile(progress => LoadedPercents = progress));
         }
 
         public bool DetectColumnsSeparator()
@@ -53,16 +52,6 @@ namespace LargeFileViewer.ViewModel.ViewStates
             }
 
             return false;
-        }
-
-        private long Counter
-        {
-            get { return _counter; }
-            set
-            {
-                _counter = value;
-                LoadedPercents = ((int)(100 * _counter / _fileLoader.FileLength));
-            }
         }
     }
 }

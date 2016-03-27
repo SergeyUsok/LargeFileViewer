@@ -60,7 +60,7 @@ namespace LargeFileViewer.ViewModel
 
         private void StartLoading(string fileName)
         {
-            var loadingViewModel = new LoadingViewModel(fileName);
+            var loadingViewModel = new FileLoadingViewModel(fileName);
 
             if (loadingViewModel.DetectColumnsSeparator())
             {

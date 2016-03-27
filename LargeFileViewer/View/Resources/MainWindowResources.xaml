@@ -8,7 +8,7 @@
   This template applies an LoadingView to an instance 
   of the LoadingViewModel class shown in the main window.
   -->
-    <DataTemplate DataType="{x:Type viewStates:LoadingViewModel}">
+    <DataTemplate DataType="{x:Type viewStates:FileLoadingViewModel}">
         <view:LoadingView />
     </DataTemplate>
 
@@ -75,7 +75,7 @@
         <Setter Property="CanUserResizeRows" Value="False"/>
         <Setter Property="CanUserResizeColumns" Value="True"/>
         <Setter Property="CanUserSortColumns" Value="True"/>
-        <Setter Property="ColumnWidth" Value="*"/>
+        <!--<Setter Property="ColumnWidth" Value="*"/>-->
         <!--<Setter Property="SelectionMode" Value="Extended" />
         <Setter Property="SelectionUnit" Value="Cell" />-->
     </Style>

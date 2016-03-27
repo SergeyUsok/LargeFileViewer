@@ -57,7 +57,7 @@ namespace LargeFileViewer.Models.StreamReading
 
             _stream.Read(buffer, 0, buffer.Length);
 
-            var separator = Encoding.UTF8.GetBytes(columnSeparator).First();
+            var separator = Encoding.UTF8.GetBytes(columnSeparator).FirstOrDefault();
 
             return GetRawColumns(buffer, columnNumber, separator)
                     .Select(rawColumn => Encoding.UTF8.GetString(rawColumn).TrimEnd('\r', '\n'))
@@ -73,23 +73,33 @@ namespace LargeFileViewer.Models.StreamReading
                 if (currentColumn == columnNumber)
                 {
                     var startIndex = i;
-                    
-                    while (buffer[i] != separator && buffer[i] != 10)
+
+                    while (i < buffer.Length && buffer[i] != separator && !IsEndOfLine(buffer[i]))
                     {
                         i++;
                     }
 
+                    if (i >= buffer.Length)
+                    {
+                        i = buffer.Length - 1;
+                    }
+                        
                     var length = i - startIndex;
 
                     yield return buffer.SubArray(startIndex, length);
                 }
 
-                if (buffer[i] == separator)
+                if (i < buffer.Length && buffer[i] == separator)
                     currentColumn++;
 
-                if (buffer[i] == 10) // if end of line is reached reset column number to 0
+                if (i < buffer.Length && IsEndOfLine(buffer[i])) // if end of line is reached reset column number to 0
                     currentColumn = 0;
             }
+        }
+
+        private bool IsEndOfLine(byte byteToCheck)
+        {
+            return byteToCheck == 10;
         }
 
         public void Dispose()
